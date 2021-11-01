@@ -8,9 +8,8 @@ int _stdcall WinMain(
     _In_ int nShowCmd
 )
 {
-    D3DApp theApp(hInstance);
-
-    theApp.Init();
-    theApp.Run();
+    D3DApp theApp;
+	theApp.InitWnd(hInstance, 500, 500, "myWindow");
+	theApp.Run();
 	return 0;
 }

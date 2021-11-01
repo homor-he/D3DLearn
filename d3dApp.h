@@ -14,67 +14,23 @@
 #pragma once
 
 #include "windows.h"
-#include <d3d11.h>
-#include <string>
-
-#define ReleaseCOM(x) { if(x){ x->Release(); x = 0; } }
+#include "Window.h"
+#include "GameTimer.h"
 
 class D3DApp
 {
 public:
-	D3DApp(HINSTANCE hInstance);
+	D3DApp();
 	virtual ~D3DApp();
 	
-	HINSTANCE AppInst()const;
-	HWND      MainWnd()const;
-	float     AspectRatio()const;
-	
+	HINSTANCE Inst()const;
+	Window* GetWindow()const;
 	int Run();
- 
-	// Framework methods.  Derived client class overrides these methods to 
-	// implement specific application requirements.
-
-	virtual bool Init();
-	virtual void OnResize(); 
-	virtual void UpdateScene(float dt);
-	virtual void DrawScene(); 
-	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-	// Convenience overrides for handling mouse input.
-	virtual void OnMouseDown(WPARAM btnState, int x, int y){ }
-	virtual void OnMouseUp(WPARAM btnState, int x, int y)  { }
-	virtual void OnMouseMove(WPARAM btnState, int x, int y){ }
-
 public:
-	bool InitMainWindow();
-	bool InitDirect3D();
-
-	void CalculateFrameStats();
-
+	virtual bool InitWnd(HINSTANCE hInstance, int nWndWidth, int nWndHeight, string szWndCaption = "");
 protected:
-
-	HINSTANCE mhAppInst;
-	HWND      mhMainWnd;
-	bool      mAppPaused;
-	bool      mMinimized;
-	bool      mMaximized;
-	bool      mResizing;
-	UINT      m4xMsaaQuality;
-
-	ID3D11Device* md3dDevice;
-	ID3D11DeviceContext* md3dImmediateContext;
-	IDXGISwapChain* mSwapChain;
-	ID3D11Texture2D* mDepthStencilBuffer;
-	ID3D11RenderTargetView* mRenderTargetView;
-	ID3D11DepthStencilView* mDepthStencilView;
-	D3D11_VIEWPORT mScreenViewport;
-
-	// Derived class should set these in derived constructor to customize starting values.
-	std::wstring mMainWndCaption;
-	D3D_DRIVER_TYPE md3dDriverType;
-	int mClientWidth;
-	int mClientHeight;
-	bool mEnable4xMsaa;
+	Window*   mWindow;
+	GameTimer mTimer;
 };
-
+extern D3DApp* gd3dApp;
 #endif // D3DAPP_H
