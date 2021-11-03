@@ -5,6 +5,7 @@
 
 #include "CmnHead.h"
 #include <d3d11.h>
+#include "wrl.h"
 
 #define ReleaseCOM(x) { if(x){ x->Release(); x = 0; } }
 
@@ -18,14 +19,15 @@ public:
 	void OnResize();
 	void UpdateScene(float dt);
 	void DrawScene();
+	void DrawTriangle();
 public:
 	HWND      mWnd;
 	int		  mWndWidth;
 	int		  mWndHeight;
 
-	ID3D11Device* md3dDevice;
-	ID3D11DeviceContext* md3dImmediateContext;
-	IDXGISwapChain* mSwapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	ID3D11Texture2D* mDepthStencilBuffer;
 	ID3D11RenderTargetView* mRenderTargetView;
 	ID3D11DepthStencilView* mDepthStencilView;

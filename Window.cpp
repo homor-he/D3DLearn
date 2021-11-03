@@ -2,139 +2,7 @@
 #include "d3dApp.h"
 #include <WindowsX.h>
 #include <sstream>
-
-LRESULT CALLBACK
-WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	if (gd3dApp == nullptr) 
-		return 0;
-	Window * gWindow = gd3dApp->GetWindow();
-	switch (msg)
-	{
-		// WM_ACTIVATE is sent when the window is activated or deactivated.  
-		// We pause the game when the window is deactivated and unpause it 
-		// when it becomes active.  
-	case WM_ACTIVATE:
-		if (LOWORD(wParam) == WA_INACTIVE)
-		{
-			gWindow->mAppPaused = true;
-			//mTimer.Stop();
-		}
-		else
-		{
-			gWindow->mAppPaused = false;
-			//mTimer.Start();
-		}
-		return 0;
-
-		// WM_SIZE is sent when the user resizes the window.  
-	case WM_SIZE:
-		// Save the new client area dimensions.
-		gWindow->mWndWidth = LOWORD(lParam);
-		gWindow->mWndHeight = HIWORD(lParam);
-		if (gWindow->GetGraphic()->md3dDevice)
-		{
-			if (wParam == SIZE_MINIMIZED)
-			{
-				gWindow->mAppPaused = true;
-				gWindow->mMinimized = true;
-				gWindow->mMaximized = false;
-			}
-			else if (wParam == SIZE_MAXIMIZED)
-			{
-				gWindow->mAppPaused = false;
-				gWindow->mMinimized = false;
-				gWindow->mMaximized = true;
-				gWindow->OnResize();
-			}
-			else if (wParam == SIZE_RESTORED)
-			{
-
-				// Restoring from minimized state?
-				if (gWindow->mMinimized)
-				{
-					gWindow->mAppPaused = false;
-					gWindow->mMinimized = false;
-					gWindow->OnResize();
-				}
-
-				// Restoring from maximized state?
-				else if (gWindow->mMaximized)
-				{
-					gWindow->mAppPaused = false;
-					gWindow->mMaximized = false;
-					gWindow->OnResize();
-				}
-				else if (gWindow->mResizing)
-				{
-					// If user is dragging the resize bars, we do not resize 
-					// the buffers here because as the user continuously 
-					// drags the resize bars, a stream of WM_SIZE messages are
-					// sent to the window, and it would be pointless (and slow)
-					// to resize for each WM_SIZE message received from dragging
-					// the resize bars.  So instead, we reset after the user is 
-					// done resizing the window and releases the resize bars, which 
-					// sends a WM_EXITSIZEMOVE message.
-				}
-				else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
-				{
-					gWindow->OnResize();
-				}
-			}
-		}
-		return 0;
-
-		// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
-	case WM_ENTERSIZEMOVE:
-		gWindow->mAppPaused = true;
-		gWindow->mResizing = true;
-		//mTimer.Stop();
-		return 0;
-
-		// WM_EXITSIZEMOVE is sent when the user releases the resize bars.
-		// Here we reset everything based on the new window dimensions.
-	case WM_EXITSIZEMOVE:
-		gWindow->mAppPaused = false;
-		gWindow->mResizing = false;
-		//mTimer.Start();
-		gWindow->OnResize();
-		return 0;
-
-		// WM_DESTROY is sent when the window is being destroyed.
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
-
-		// The WM_MENUCHAR message is sent when a menu is active and the user presses 
-		// a key that does not correspond to any mnemonic or accelerator key. 
-	case WM_MENUCHAR:
-		// Don't beep when we alt-enter.
-		return MAKELRESULT(0, MNC_CLOSE);
-
-		// Catch this message so to prevent the window from becoming too small.
-	case WM_GETMINMAXINFO:
-		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
-		return 0;
-
-	case WM_LBUTTONDOWN:
-	case WM_MBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-		gWindow->OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
-	case WM_LBUTTONUP:
-	case WM_MBUTTONUP:
-	case WM_RBUTTONUP:
-		gWindow->OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
-	case WM_MOUSEMOVE:
-		gWindow->OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
-	}
-
-	return DefWindowProc(hwnd, msg, wParam, lParam);
-}
-
+#include "CmnFunc.h"
 
 Window::Window(HINSTANCE hInstance, string szWndCaption, int nWidth, int nHight)
 {
@@ -164,7 +32,7 @@ bool Window::InitWindow()
 {
 	WNDCLASS wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WndProc;
+	wc.lpfnWndProc = HandleMsgSetup;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = mInst;
@@ -187,7 +55,7 @@ bool Window::InitWindow()
 	int height = R.bottom - R.top;
 
 	mWnd = CreateWindow(wc.lpszClassName, mWndCaption.c_str(),
-		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, mInst, 0);
+		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, mInst, this);
 	if (!mWnd)
 	{
 		MessageBox(0, "CreateWindow Failed.", 0, 0);
@@ -258,18 +126,167 @@ void Window::OnResize()
 	mGraphic->OnResize();
 }
 
-void Window::OnMouseDown(WPARAM btnState, int x, int y)
+LRESULT CALLBACK
+Window::HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	if (msg == WM_NCCREATE)
+	{
+		//获取window指针
+		CREATESTRUCTW* pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
+		Window* pWnd = static_cast<Window*>(pCreate->lpCreateParams);
+		//用pwnd替换hwnd的窗口相关用户数据
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
+		//用HandleMsgReal替换hwnd原来的回调
+		SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&HandleMsgReal));
+		return pWnd->HandleMsg(hwnd, msg, wParam, lParam);
+	}
+	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-void Window::OnMouseUp(WPARAM btnState, int x, int y)
+LRESULT Window::HandleMsgReal(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	Window* pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+	return pWnd->HandleMsg(hwnd, msg, wParam, lParam);
 }
 
-void Window::OnMouseMove(WPARAM btnState, int x, int y)
+LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	ostringstream outs;
-	outs << "屏幕坐标 (" << x << "," << y <<")";
-	SetWindowText(mWnd, outs.str().c_str());
+	switch (msg)
+	{
+		// WM_ACTIVATE is sent when the window is activated or deactivated.  
+		// We pause the game when the window is deactivated and unpause it 
+		// when it becomes active.  
+	case WM_ACTIVATE:
+		if (LOWORD(wParam) == WA_INACTIVE)
+		{
+			mAppPaused = true;
+			//mTimer.Stop();
+		}
+		else
+		{
+			mAppPaused = false;
+			//mTimer.Start();
+		}
+		return 0;
+
+		// WM_SIZE is sent when the user resizes the window.  
+	case WM_SIZE:
+		// Save the new client area dimensions.
+		mWndWidth = LOWORD(lParam);
+		mWndHeight = HIWORD(lParam);
+		if (mGraphic->mDevice.Get())
+		{
+			if (wParam == SIZE_MINIMIZED)
+			{
+				mAppPaused = true;
+				mMinimized = true;
+				mMaximized = false;
+			}
+			else if (wParam == SIZE_MAXIMIZED)
+			{
+				mAppPaused = false;
+				mMinimized = false;
+				mMaximized = true;
+				OnResize();
+			}
+			else if (wParam == SIZE_RESTORED)
+			{
+
+				// Restoring from minimized state?
+				if (mMinimized)
+				{
+					mAppPaused = false;
+					mMinimized = false;
+					OnResize();
+				}
+
+				// Restoring from maximized state?
+				else if (mMaximized)
+				{
+					mAppPaused = false;
+					mMaximized = false;
+					OnResize();
+				}
+				else if (mResizing)
+				{
+					// If user is dragging the resize bars, we do not resize 
+					// the buffers here because as the user continuously 
+					// drags the resize bars, a stream of WM_SIZE messages are
+					// sent to the window, and it would be pointless (and slow)
+					// to resize for each WM_SIZE message received from dragging
+					// the resize bars.  So instead, we reset after the user is 
+					// done resizing the window and releases the resize bars, which 
+					// sends a WM_EXITSIZEMOVE message.
+				}
+				else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
+				{
+					OnResize();
+				}
+			}
+		}
+		return 0;
+
+		/************* BAR MESSAGES ****************/
+		// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
+	case WM_ENTERSIZEMOVE:
+		mAppPaused = true;
+		mResizing = true;
+		//mTimer.Stop();
+		return 0;
+		// WM_EXITSIZEMOVE is sent when the user releases the resize bars.
+		// Here we reset everything based on the new window dimensions.
+	case WM_EXITSIZEMOVE:
+		mAppPaused = false;
+		mResizing = false;
+		//mTimer.Start();
+		OnResize();
+		return 0;
+		/************* BAR MESSAGES ****************/
+
+		// WM_DESTROY is sent when the window is being destroyed.
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+
+		// The WM_MENUCHAR message is sent when a menu is active and the user presses 
+		// a key that does not correspond to any mnemonic or accelerator key. 
+	case WM_MENUCHAR:
+		// Don't beep when we alt-enter.
+		return MAKELRESULT(0, MNC_CLOSE);
+
+		// Catch this message so to prevent the window from becoming too small.
+	case WM_GETMINMAXINFO:
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
+		return 0;
+
+		/************* MOUSE MESSAGES ****************/
+	case WM_LBUTTONDOWN:
+		mMouse.OnLeftPressed(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_MBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		mMouse.OnRightPressed(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_LBUTTONUP:
+		mMouse.OnLeftReleased(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_MBUTTONUP:
+	case WM_RBUTTONUP:
+		mMouse.OnRightReleased(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_MOUSEMOVE:
+	{
+		mMouse.OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		//WriteLog("%s-%d, 屏幕坐标(%d,%d)",__FILE__,__LINE__, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	}
+	case WM_MOUSEHWHEEL:
+		mMouse.OnWheelDelta(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), GET_WHEEL_DELTA_WPARAM(wParam));
+		return 0;
+		/************* MOUSE MESSAGES ****************/
+	}
+
+	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 

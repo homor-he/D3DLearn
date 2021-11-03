@@ -31,6 +31,14 @@ Window * D3DApp::GetWindow() const
 	return mWindow;
 }
 
+bool D3DApp::InitWnd(HINSTANCE hInstance, int nWndWidth, int nWndHeight, string szWndCaption)
+{
+	mWindow = new Window(hInstance, szWndCaption, nWndWidth, nWndHeight);
+	if (mWindow != nullptr)
+		mWindow->InitWindow();
+	return true;
+}
+
 int D3DApp::Run()
 {
 	MSG msg = {0};
@@ -64,13 +72,7 @@ int D3DApp::Run()
 	return (int)msg.wParam;
 }
 
-bool D3DApp::InitWnd(HINSTANCE hInstance, int nWndWidth, int nWndHeight, string szWndCaption)
-{
-	mWindow = new Window(hInstance, szWndCaption, nWndWidth, nWndHeight);
-	if (mWindow != nullptr)
-		mWindow->InitWindow();
-	return true;
-}
+
 
 
 

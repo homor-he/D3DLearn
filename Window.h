@@ -5,6 +5,7 @@
 
 #include "CmnHead.h"
 #include "Graphic.h"
+#include "Mouse.h"
 
 class Window
 {
@@ -20,9 +21,10 @@ public:
 	void CalculateFrameStats();
 
 	virtual void OnResize();
-	virtual void OnMouseDown(WPARAM btnState, int x, int y);
-	virtual void OnMouseUp(WPARAM btnState, int x, int y); 
-	virtual void OnMouseMove(WPARAM btnState, int x, int y);
+public:
+	static LRESULT CALLBACK HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK HandleMsgReal(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	LRESULT HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 public:
 	int		  mWndWidth;
 	int		  mWndHeight;
@@ -37,6 +39,7 @@ private:
 	string	  mWndCaption;
 
 	Graphic*  mGraphic;
+	Mouse     mMouse;
 };
 
 
