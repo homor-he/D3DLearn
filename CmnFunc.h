@@ -7,26 +7,13 @@
 
 #include "windows.h"
 #include <string>
+#include <vector>
 #include "dxerr.h"
 
 void WriteLog(const char* szContent, ...);
 
-#if defined(DEBUG) | defined(_DEBUG)
-#ifndef HR
-#define HR(x)                                               \
-	{                                                           \
-		HRESULT hr = (x);                                       \
-		if(FAILED(hr))                                          \
-		{                                                       \
-			DXTrace(__FILE__, (DWORD)__LINE__, hr, #x, true);  \
-		}                                                       \
-	}
-#endif
+void OutPutError(const char* szContent, ...);
 
-#else
-#ifndef HR
-#define HR(x) (x)
-#endif
-#endif 
+string FormatString(vector<string> infoMsgs);
 
 #endif // !__COMMONFUNC_H__

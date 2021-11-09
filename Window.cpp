@@ -26,6 +26,8 @@ Window::~Window()
 		delete mGraphic;
 		mGraphic = nullptr;
 	}
+	DestroyWindow(mWnd);
+
 }
 
 bool Window::InitWindow()

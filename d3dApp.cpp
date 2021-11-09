@@ -18,7 +18,8 @@ D3DApp::D3DApp()
 
 D3DApp::~D3DApp()
 {
-
+	delete mWindow;
+	mWindow = nullptr;
 }
 
 HINSTANCE D3DApp::Inst()const

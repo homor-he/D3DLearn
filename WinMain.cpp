@@ -9,7 +9,7 @@ int _stdcall WinMain(
 )
 {
     D3DApp theApp;
-	theApp.InitWnd(hInstance, 500, 500, "myWindow");
+	theApp.InitWnd(hInstance, 625, 500, "myWindow");
 	theApp.Run();
 	return 0;
 }
