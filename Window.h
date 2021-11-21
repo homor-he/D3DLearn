@@ -9,6 +9,7 @@
 
 class Window
 {
+	
 public:
 	Window(HINSTANCE hInstance, string szWndCaption, int nWidth,int nHight);
 	virtual ~Window();

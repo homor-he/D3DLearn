@@ -16,4 +16,6 @@ void OutPutError(const char* szContent, ...);
 
 string FormatString(vector<string> infoMsgs);
 
+wstring String2WString(const std::string& s);
+
 #endif // !__COMMONFUNC_H__

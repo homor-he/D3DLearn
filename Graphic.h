@@ -7,6 +7,7 @@
 #include <d3d11.h>
 #include <wrl.h>
 #include <vector>
+#include <DirectXMath.h>
 #include "ExceptionBase.h"
 #include "DxgiInfoManager.h"
 
@@ -14,6 +15,7 @@
 
 class Graphic
 {
+	friend class GraphicResource;
 public:
 	class HrException : public ExceptionBase
 	{
@@ -48,8 +50,10 @@ public:
 	void OnResize();
 	void UpdateScene(float dt);
 	void DrawScene();
-	void DrawTriangle();
-public:
+	void DrawTriangle(float angle);
+	int GetWidth();
+	int GetHeight();
+private:
 	HWND      mWnd;
 	int		  mWndWidth;
 	int		  mWndHeight;
@@ -58,7 +62,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	//ID3D11Texture2D* mDepthStencilBuffer;
-	ID3D11RenderTargetView* mRenderTarget;
+	//ID3D11RenderTargetView* mRenderTarget;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTarget;
 	//ID3D11DepthStencilView* mDepthStencilView;
 
 	bool	  mEnable4xMsaa;		//ÊÇ·ñ¿ªÆô¿¹¾â³Ý

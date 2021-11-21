@@ -3,6 +3,7 @@
 #include <WindowsX.h>
 #include <sstream>
 #include "CmnFunc.h"
+#include "GraphicResource.h"
 
 Window::Window(HINSTANCE hInstance, string szWndCaption, int nWidth, int nHight)
 {
@@ -176,7 +177,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// Save the new client area dimensions.
 		mWndWidth = LOWORD(lParam);
 		mWndHeight = HIWORD(lParam);
-		if (mGraphic->mDevice.Get())
+		if (GraphicResource::GetDevice(*mGraphic))
 		{
 			if (wParam == SIZE_MINIMIZED)
 			{

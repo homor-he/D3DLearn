@@ -15,7 +15,7 @@ Graphic::Graphic(HWND hWnd,int nWndWidth, int nWndHeight)
 	mWndWidth = nWndWidth;
 	mWndHeight = nWndHeight;
 
-	mEnable4xMsaa = false;		
+	mEnable4xMsaa = true;		
 	m4xMsaaQuality = 0;
 
 	//mDepthStencilBuffer = nullptr;
@@ -120,22 +120,23 @@ bool Graphic::Init()
 
 void Graphic::OnResize()
 {
-
 	// Release the old views, as they hold references to the buffers we
 	// will be destroying.  Also release the old depth/stencil buffer.
 	//ReleaseCOM(mDepthStencilView);
 	//ReleaseCOM(mDepthStencilBuffer);
-	ReleaseCOM(mRenderTarget);
+	//ReleaseCOM(mRenderTarget);
+	mRenderTarget.~ComPtr();
 
 	HRESULT hr;
 	// Resize the swap chain and recreate the render target view.
 	GFX_THROW_INFO(mSwapChain->ResizeBuffers(1, mWndWidth, mWndHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));				//改变交换链缓冲区的设置
 	wrl::ComPtr<ID3D11Texture2D> backBuffer;
 	GFX_THROW_INFO(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backBuffer));								//装备用ID3D11Texture2D接口来操作后向缓冲区backbuffer
-	GFX_THROW_INFO(mDevice->CreateRenderTargetView(backBuffer.Get(), 0, &mRenderTarget));						//为读入的资源数据创建一个渲染目标视图
+	//GFX_THROW_INFO(mDevice->CreateRenderTargetView(backBuffer.Get(), 0, &mRenderTarget));
+	GFX_THROW_INFO(mDevice->CreateRenderTargetView(backBuffer.Get(), 0, &mRenderTarget));//为读入的资源数据创建一个渲染目标视图
 
 	//设置渲染目标
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTarget, 0);
+	mDeviceContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), 0);
 	
 	//设置视口
 	D3D11_VIEWPORT mScreenViewport;
@@ -153,16 +154,16 @@ void Graphic::UpdateScene(float dt)
 	float value = sin(dt)*0.5f + 0.5f;
 	//float ClearColor[4] = { 0.5f, 0.1f, 0.2f, 1.0f }; //red,green,blue,alpha
 	float ClearColor[4] = { value, value, 0.2f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRenderTarget, ClearColor);
+	mDeviceContext->ClearRenderTargetView(mRenderTarget.Get(), ClearColor);
+	DrawTriangle(dt);
 }
 
 void Graphic::DrawScene()
 {
-	DrawTriangle();
 	GFX_THROW_INFO_ONLY(mSwapChain->Present(1, 0));
 }
 
-void Graphic::DrawTriangle()
+void Graphic::DrawTriangle(float angle)
 {
 	// for checking results of d3d functions
 	HRESULT hr;
@@ -202,7 +203,7 @@ void Graphic::DrawTriangle()
 		{ -0.5f,-0.5f,0,0,255,255 },
 		{ -0.5f,0.0f,0,0,255,255 },*/
 
-		{ 0.0f,0.5f,255,0,0,255 },
+		{ 0.0f,1.0f,255,0,0,255 },
 		{ 0.5f,-0.5f,0,255,0,255 },
 		{ -0.5f,-0.5f,0,0,255,255 },
 		{ 0.5f,0.0f,0,255,0,255 },
@@ -249,6 +250,26 @@ void Graphic::DrawTriangle()
 	//设置索引缓存
 	mDeviceContext->IASetIndexBuffer(indexBuff.Get(), DXGI_FORMAT_R16_UINT, 0);
 
+	//设置常量缓存
+	float constBuffMatrix[4][4] = {
+		cos(angle)*0.5f,		sin(angle),		0,		0,
+		-sin(angle)*0.5f,	cos(angle),		0,		0,
+		0,				0,				1,		0,
+		0,				0,				0,		1
+	};
+	wrl::ComPtr<ID3D11Buffer> constBuffer;
+	D3D11_BUFFER_DESC constBufDesc;
+	constBufDesc.ByteWidth = sizeof(constBuffMatrix);
+	constBufDesc.Usage = D3D11_USAGE_DYNAMIC;;
+	constBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufDesc.MiscFlags = 0;
+	constBufDesc.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA constInitData;
+	constInitData.pSysMem = constBuffMatrix;
+	GFX_THROW_INFO(mDevice->CreateBuffer(&constBufDesc, &constInitData, &constBuffer));
+	mDeviceContext->VSSetConstantBuffers(0, 1, constBuffer.GetAddressOf());
+
 	//读取顶点着色器
 	wrl::ComPtr<ID3DBlob> vsBlob;
 	GFX_THROW_INFO(D3DReadFileToBlob(L"VertexShader.cso", &vsBlob));
@@ -279,6 +300,16 @@ void Graphic::DrawTriangle()
 	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(size(indexArr), 0u, 0u));
+}
+
+int Graphic::GetWidth()
+{
+	return mWndWidth;
+}
+
+int Graphic::GetHeight()
+{
+	return mWndHeight;
 }
 
 Graphic::HrException::HrException(int line, const char * file, HRESULT hr, vector<string> infoMsgs) 
