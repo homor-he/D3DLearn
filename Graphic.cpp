@@ -4,6 +4,11 @@
 #include <sstream>
 #include "GraphicsThrowMacros.h"
 
+#include "Viewport.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "ConstantBuffer.h"
+
 namespace wrl = Microsoft::WRL;
 
 #pragma comment(lib,"d3d11.lib")
@@ -139,14 +144,16 @@ void Graphic::OnResize()
 	mDeviceContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), 0);
 	
 	//设置视口
-	D3D11_VIEWPORT mScreenViewport;
+	/*D3D11_VIEWPORT mScreenViewport;
 	mScreenViewport.TopLeftX = 0;
 	mScreenViewport.TopLeftY = 0;
 	mScreenViewport.Width = static_cast<float>(mWndWidth);
 	mScreenViewport.Height = static_cast<float>(mWndHeight);
 	mScreenViewport.MinDepth = 0.0f;
 	mScreenViewport.MaxDepth = 1.0f;
-	mDeviceContext->RSSetViewports(1, &mScreenViewport);
+	mDeviceContext->RSSetViewports(1, &mScreenViewport);*/
+	Bind::Viewport mScreenViewport{ *this };
+	mScreenViewport.Bind(*this);
 }
 
 void Graphic::UpdateScene(float dt)
@@ -166,64 +173,174 @@ void Graphic::DrawScene()
 void Graphic::DrawTriangle(float angle)
 {
 	// for checking results of d3d functions
-	HRESULT hr;
+	//HRESULT hr;
+	//struct Vertex
+	//{
+	//	typedef struct
+	//	{
+	//		float x;
+	//		float y;
+	//	}Pos;
+	//	typedef struct
+	//	{
+	//		unsigned char r;
+	//		unsigned char g;
+	//		unsigned char b;
+	//		unsigned char a;
+	//	}Color;
+	//	Pos pos;
+	//	Color color;
+	//};
+
+	//Vertex vertexArr[] = {
+	//	
+	//	/*{0.0f,0.5f,255,0,0,255},
+	//	{0.5f,-0.5f,0,255,0,255},
+	//	{-0.5f,-0.5f,0,0,255,255},
+
+	//	{0.0f,0.5f,255,0,0,255},
+	//	{ 0.5f,0.0f,0,255,0,255 },
+	//	{ 0.5f,-0.5f,0,0,255,255 },
+
+	//	{-0.5f,-0.5f,0,0,255,255},
+	//	{ 0.5f,-0.5f,0,255,0,255 },
+	//	{ 0.0f,-0.75f,0,255,0,255 },
+
+	//	{ 0.0f,0.5f,255,0,0,255 },
+	//	{ -0.5f,-0.5f,0,0,255,255 },
+	//	{ -0.5f,0.0f,0,0,255,255 },*/
+
+	//	{ 0.0f,1.0f,255,0,0,255 },
+	//	{ 0.5f,-0.5f,0,255,0,255 },
+	//	{ -0.5f,-0.5f,0,0,255,255 },
+	//	{ 0.5f,0.0f,0,255,0,255 },
+	//	{ 0.0f,-0.75f,0,255,0,255 },
+	//	{ -0.5f,0.0f,0,0,255,255 },
+	//};
+
+	////创建顶点缓存
+	//wrl::ComPtr<ID3D11Buffer> vertexBuff;
+	//D3D11_BUFFER_DESC vertexBufDesc;
+	//vertexBufDesc.ByteWidth = sizeof(vertexArr);
+	//vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;;
+	//vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	//vertexBufDesc.CPUAccessFlags = 0;
+	//vertexBufDesc.MiscFlags = 0;
+	//vertexBufDesc.StructureByteStride = sizeof(Vertex);
+	//D3D11_SUBRESOURCE_DATA vertexInitData;
+	//vertexInitData.pSysMem = vertexArr;
+	//GFX_THROW_INFO(mDevice->CreateBuffer(&vertexBufDesc, &vertexInitData, &vertexBuff));
+
+	//SHORT indexArr[] =
+	//{
+	//	0,1,2,
+	//	1,0,3,
+	//	1,4,2,
+	//	0,2,5,
+	//};
+	////创建索引缓存
+	//wrl::ComPtr<ID3D11Buffer> indexBuff;
+	//D3D11_BUFFER_DESC indexBufDesc;
+	//indexBufDesc.ByteWidth = sizeof(indexArr);
+	//indexBufDesc.Usage = D3D11_USAGE_IMMUTABLE;;
+	//indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	//indexBufDesc.CPUAccessFlags = 0;
+	//indexBufDesc.MiscFlags = 0;
+	//indexBufDesc.StructureByteStride = 0;
+	//D3D11_SUBRESOURCE_DATA indexInitData;
+	//indexInitData.pSysMem = indexArr;
+	//GFX_THROW_INFO(mDevice->CreateBuffer(&indexBufDesc, &indexInitData, &indexBuff));
+	////设置顶点缓存
+	//UINT stride = sizeof(Vertex);
+	//UINT offset = 0;
+	//mDeviceContext->IASetVertexBuffers(0, 1, vertexBuff.GetAddressOf(), &stride, &offset);
+	////设置索引缓存
+	//mDeviceContext->IASetIndexBuffer(indexBuff.Get(), DXGI_FORMAT_R16_UINT, 0);
+
+	////设置常量缓存
+	//float constBuffMatrix[4][4] = {
+	//	cos(angle)*0.5f,		sin(angle),		0,		0,
+	//	-sin(angle)*0.5f,	cos(angle),		0,		0,
+	//	0,				0,				1,		0,
+	//	0,				0,				0,		1
+	//};
+	//wrl::ComPtr<ID3D11Buffer> constBuffer;
+	//D3D11_BUFFER_DESC constBufDesc;
+	//constBufDesc.ByteWidth = sizeof(constBuffMatrix);
+	//constBufDesc.Usage = D3D11_USAGE_DYNAMIC;;
+	//constBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	//constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	//constBufDesc.MiscFlags = 0;
+	//constBufDesc.StructureByteStride = 0;
+	//D3D11_SUBRESOURCE_DATA constInitData;
+	//constInitData.pSysMem = constBuffMatrix;
+	//GFX_THROW_INFO(mDevice->CreateBuffer(&constBufDesc, &constInitData, &constBuffer));
+	//mDeviceContext->VSSetConstantBuffers(0, 1, constBuffer.GetAddressOf());
+
+	////读取顶点着色器
+	//wrl::ComPtr<ID3DBlob> vsBlob;
+	//GFX_THROW_INFO(D3DReadFileToBlob(L"VertexShader.cso", &vsBlob));
+	////创建并设置顶点着色器
+	//wrl::ComPtr<ID3D11VertexShader> vertexShader;
+	//GFX_THROW_INFO(mDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), 0, &vertexShader));
+	//mDeviceContext->VSSetShader(vertexShader.Get(), 0, 0);
+
+	////读取像素着色器
+	//wrl::ComPtr<ID3DBlob> psBlob;
+	//GFX_THROW_INFO(D3DReadFileToBlob(L"PixelShader.cso", &psBlob));
+	////创建并设置像素着色器
+	//wrl::ComPtr<ID3D11PixelShader>  pixelShader;
+	//mDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), 0, &pixelShader);
+	//mDeviceContext->PSSetShader(pixelShader.Get(), 0, 0);
+
+	////设置inputlayout
+	//wrl::ComPtr<ID3D11InputLayout> inputLayout;
+	//D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+	//{
+	//	{ "Position",0,DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA ,0 },
+	//	{ "Color",0,DXGI_FORMAT_R8G8B8A8_UNORM,0,8,D3D11_INPUT_PER_VERTEX_DATA ,0 },
+	//};
+	//mDevice->CreateInputLayout(vertexDesc, size(vertexDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout);
+	//mDeviceContext->IASetInputLayout(inputLayout.Get());
+
+	////设置几何图元形状
+	//mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+
+	//////////////////////////////////////////////
 	struct Vertex
 	{
-		typedef struct
-		{
-			float x;
-			float y;
-		}Pos;
-		typedef struct
-		{
-			unsigned char r;
-			unsigned char g;
-			unsigned char b;
-			unsigned char a;
-		}Color;
-		Pos pos;
-		Color color;
+		DirectX::XMFLOAT2 pos;
+		BGRAColor color;
 	};
 
 	Vertex vertexArr[] = {
-		
-		/*{0.0f,0.5f,255,0,0,255},
-		{0.5f,-0.5f,0,255,0,255},
-		{-0.5f,-0.5f,0,0,255,255},
-
-		{0.0f,0.5f,255,0,0,255},
-		{ 0.5f,0.0f,0,255,0,255 },
-		{ 0.5f,-0.5f,0,0,255,255 },
-
-		{-0.5f,-0.5f,0,0,255,255},
-		{ 0.5f,-0.5f,0,255,0,255 },
-		{ 0.0f,-0.75f,0,255,0,255 },
-
-		{ 0.0f,0.5f,255,0,0,255 },
-		{ -0.5f,-0.5f,0,0,255,255 },
-		{ -0.5f,0.0f,0,0,255,255 },*/
-
-		{ 0.0f,1.0f,255,0,0,255 },
-		{ 0.5f,-0.5f,0,255,0,255 },
-		{ -0.5f,-0.5f,0,0,255,255 },
-		{ 0.5f,0.0f,0,255,0,255 },
-		{ 0.0f,-0.75f,0,255,0,255 },
-		{ -0.5f,0.0f,0,0,255,255 },
+		{ {0.0f,1.0f},255,0,0,255 },
+		{ {0.5f,-0.5f},0,255,0,255 },
+		{ {-0.5f,-0.5f},0,0,255,255 },
+		{ {0.5f,0.0f},0,255,0,255 },
+		{ {0.0f,-0.75f},0,255,0,255 },
+		{ {-0.5f,0.0f},0,0,255,255 },
 	};
+	char* buffer = new char(size(vertexArr));
+	memmove(buffer, vertexArr, size(vertexArr));
+	//设置顶点缓存
+	VertexRela::VertexLayout vtLayout;
+	vtLayout = vtLayout.Append(VertexRela::VertexLayout::ElementType::Position2D);
+	vtLayout = vtLayout.Append(VertexRela::VertexLayout::ElementType::BGRAColor);
+	//Bind::VertexBuffer vertexBuff{*this,}
+	VertexRela::VertexBuffer vtBuffer(vtLayout);
+	for (size_t i = 0; i < size(vertexArr); ++i)
+	{
+		/*auto vertex = vtBuffer[i];
+		vertex.SetAttributeByIndex(0, vertexArr[i].pos);
+		vertex.SetAttributeByIndex(1, vertexArr[i].color);*/
+		vtBuffer.EmplaceBack(std::move(*buffer));
+	}
+	Bind::VertexBuffer vtBindBuffer(*this, vtBuffer);
+	vtBindBuffer.Bind(*this);
 
-	//创建顶点缓存
-	wrl::ComPtr<ID3D11Buffer> vertexBuff;
-	D3D11_BUFFER_DESC vertexBufDesc;
-	vertexBufDesc.ByteWidth = sizeof(vertexArr);
-	vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;;
-	vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufDesc.CPUAccessFlags = 0;
-	vertexBufDesc.MiscFlags = 0;
-	vertexBufDesc.StructureByteStride = sizeof(Vertex);
-	D3D11_SUBRESOURCE_DATA vertexInitData;
-	vertexInitData.pSysMem = vertexArr;
-	GFX_THROW_INFO(mDevice->CreateBuffer(&vertexBufDesc, &vertexInitData, &vertexBuff));
-
+	//设置索引缓存
 	SHORT indexArr[] =
 	{
 		0,1,2,
@@ -231,73 +348,21 @@ void Graphic::DrawTriangle(float angle)
 		1,4,2,
 		0,2,5,
 	};
-	//创建索引缓存
-	wrl::ComPtr<ID3D11Buffer> indexBuff;
-	D3D11_BUFFER_DESC indexBufDesc;
-	indexBufDesc.ByteWidth = sizeof(indexArr);
-	indexBufDesc.Usage = D3D11_USAGE_IMMUTABLE;;
-	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufDesc.CPUAccessFlags = 0;
-	indexBufDesc.MiscFlags = 0;
-	indexBufDesc.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA indexInitData;
-	indexInitData.pSysMem = indexArr;
-	GFX_THROW_INFO(mDevice->CreateBuffer(&indexBufDesc, &indexInitData, &indexBuff));
-	//设置顶点缓存
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	mDeviceContext->IASetVertexBuffers(0, 1, vertexBuff.GetAddressOf(), &stride, &offset);
-	//设置索引缓存
-	mDeviceContext->IASetIndexBuffer(indexBuff.Get(), DXGI_FORMAT_R16_UINT, 0);
+	vector<unsigned short> vecIdArr;
+	vecIdArr.reserve(size(indexArr));
+	vecIdArr.assign(&indexArr[0], &indexArr[size(indexArr) - 1]);
+	Bind::IndexBuffer idBuffer(*this, vecIdArr);
 
 	//设置常量缓存
-	float constBuffMatrix[4][4] = {
+	float constBuffMatrix[16] = {
 		cos(angle)*0.5f,		sin(angle),		0,		0,
 		-sin(angle)*0.5f,	cos(angle),		0,		0,
 		0,				0,				1,		0,
 		0,				0,				0,		1
 	};
-	wrl::ComPtr<ID3D11Buffer> constBuffer;
-	D3D11_BUFFER_DESC constBufDesc;
-	constBufDesc.ByteWidth = sizeof(constBuffMatrix);
-	constBufDesc.Usage = D3D11_USAGE_DYNAMIC;;
-	constBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	constBufDesc.MiscFlags = 0;
-	constBufDesc.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA constInitData;
-	constInitData.pSysMem = constBuffMatrix;
-	GFX_THROW_INFO(mDevice->CreateBuffer(&constBufDesc, &constInitData, &constBuffer));
-	mDeviceContext->VSSetConstantBuffers(0, 1, constBuffer.GetAddressOf());
-
-	//读取顶点着色器
-	wrl::ComPtr<ID3DBlob> vsBlob;
-	GFX_THROW_INFO(D3DReadFileToBlob(L"VertexShader.cso", &vsBlob));
-	//创建并设置顶点着色器
-	wrl::ComPtr<ID3D11VertexShader> vertexShader;
-	GFX_THROW_INFO(mDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), 0, &vertexShader));
-	mDeviceContext->VSSetShader(vertexShader.Get(), 0, 0);
-
-	//读取像素着色器
-	wrl::ComPtr<ID3DBlob> psBlob;
-	GFX_THROW_INFO(D3DReadFileToBlob(L"PixelShader.cso", &psBlob));
-	//创建并设置像素着色器
-	wrl::ComPtr<ID3D11PixelShader>  pixelShader;
-	mDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), 0, &pixelShader);
-	mDeviceContext->PSSetShader(pixelShader.Get(), 0, 0);
-
-	//设置inputlayout
-	wrl::ComPtr<ID3D11InputLayout> inputLayout;
-	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
-	{
-		{"Position",0,DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA ,0},
-		{ "Color",0,DXGI_FORMAT_R8G8B8A8_UNORM,0,8,D3D11_INPUT_PER_VERTEX_DATA ,0 },
-	};
-	mDevice->CreateInputLayout(vertexDesc, size(vertexDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout);
-	mDeviceContext->IASetInputLayout(inputLayout.Get());
-
-	//设置几何图元形状
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DirectX::XMMATRIX matrix(constBuffMatrix);
+	Bind::VertexConstantBuffer<DirectX::XMMATRIX> vtConstantBuffer(*this, matrix);
+	//////////////////////////////////////////////
 
 	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(size(indexArr), 0u, 0u));
 }

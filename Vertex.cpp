@@ -15,7 +15,7 @@ namespace VertexRela
 		return GetOffset() + Size();
 	}
 
-	size_t VertexLayout::Element::GetOffset() 
+	size_t VertexLayout::Element::GetOffset() const
 	{
 		return m_offset;
 	}
@@ -25,7 +25,7 @@ namespace VertexRela
 		return SizeOf(m_type);
 	}
 
-	VertexLayout::ElementType VertexLayout::Element::GetType() 
+	VertexLayout::ElementType VertexLayout::Element::GetType() const
 	{
 		return m_type;
 	}
@@ -71,6 +71,25 @@ namespace VertexRela
 		return m_elements.size() * m_elements.back().Size();
 	}
 
+	VertexLayout & VertexLayout::Append(ElementType type)
+	{
+		if (!Has(type))
+		{
+			m_elements.emplace_back(type,GetSize());
+		}
+		return *this;
+	}
+
+	const VertexLayout::Element & VertexLayout::FindElementByIndex(size_t i)
+	{
+		return m_elements[i];
+	}
+
+	size_t VertexLayout::GetElementCnt()
+	{
+		return m_elements.size();
+	}
+
 	vector<D3D11_INPUT_ELEMENT_DESC> VertexLayout::GetLayoutDesc()
 	{
 		vector<D3D11_INPUT_ELEMENT_DESC> sDesc;
@@ -85,6 +104,17 @@ namespace VertexRela
 		}
 		return sDesc;
 	}
+	bool VertexLayout::Has(ElementType type) const 
+	{
+		for (auto & element : m_elements)
+		{
+			if (type == element.GetType())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 #pragma endregion
 
 
@@ -97,8 +127,10 @@ namespace VertexRela
 
 
 #pragma region VertexBuffer
-	VertexBuffer::VertexBuffer(VertexLayout layout, size_t size)
+	VertexBuffer::VertexBuffer(VertexLayout layout, size_t size):
+		m_layout(move(layout))
 	{
+		SetBufferSize(size);
 	}
 
 	const char * VertexBuffer::GetData()
@@ -113,12 +145,31 @@ namespace VertexRela
 
 	size_t VertexBuffer::GetSize()
 	{
-		return m_layout.GetSize();
+		return m_buffer.size() / m_layout.GetSize();
 	}
 
 	size_t VertexBuffer::SizeBytes()
 	{
 		return m_buffer.size();
+	}
+
+	void VertexBuffer::SetBufferSize(size_t newSize)
+	{
+		size_t size = GetSize();
+		if (newSize > size)
+		{
+			m_buffer.resize(m_buffer.size() + m_layout.GetSize() * (newSize - size));
+		}
+	}
+
+	Vertex VertexBuffer::Back()
+	{
+		return Vertex{ m_buffer.data() + m_buffer.size() - m_layout.GetSize(),m_layout };
+	}
+
+	Vertex VertexBuffer::operator[](size_t i)
+	{
+		return Vertex{ m_buffer.data() + m_layout.GetSize() * i,m_layout };
 	}
 #pragma endregion
 
