@@ -8,7 +8,7 @@
 class GraphicResource
 {
 	friend class Window;
-protected:
+public:
 	static ID3D11DeviceContext* GetContext(Graphic& gfx);
 	static ID3D11Device* GetDevice(Graphic& gfx);
 	static DxgiInfoManager& GetInfoManager(Graphic& gfx);

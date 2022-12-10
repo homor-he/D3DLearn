@@ -7,9 +7,10 @@
 
 GameTimer::GameTimer()
 : mSecondsPerCount(0.0), mDeltaTime(-1.0), mBaseTime(0), 
-  mPausedTime(0), mPrevTime(0), mCurrTime(0), mStopped(false)
+  mPausedTime(0), mPrevTime(0), mCurrTime(0), mStopped(false),mFixTimePerFrame(0.02f),mTotalFrame(0)
 {
 	__int64 countsPerSec;
+	//获取计时器频率，一般用于  (begin-end)/计时器频率, 获取时间间隔，单位为秒，精度为1000 000/（cpu主频）微秒
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
 	mSecondsPerCount = 1.0 / (double)countsPerSec;
 }
@@ -123,5 +124,15 @@ void GameTimer::Tick()
 	{
 		mDeltaTime = 0.0;
 	}
+}
+
+void GameTimer::TotalFrameIncrement()
+{
+	mTotalFrame++;
+}
+
+float GameTimer::GetFixTime()
+{
+	return mTotalFrame * mFixTimePerFrame;
 }
 

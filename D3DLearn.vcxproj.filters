@@ -1,0 +1,697 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{d78c814e-b41f-4eaa-b891-4f4963aa433d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="配置文件">
+      <UniqueIdentifier>{4ccc604e-54b0-4844-b3eb-47dd3f7b01bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Frame">
+      <UniqueIdentifier>{b2366ffb-c2e7-4610-99d2-d9cc3acb442d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Bindable">
+      <UniqueIdentifier>{584c6c65-3ff1-4dd1-b1d3-41d42e45193c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Drawable">
+      <UniqueIdentifier>{deae7464-7022-42f6-9acc-8863c6c5d2ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\Model">
+      <UniqueIdentifier>{9e61d2e1-bed4-481a-b913-a3201ebc1ec8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\RenderProcess">
+      <UniqueIdentifier>{98ad1101-b6ed-4402-aed4-8ab1692f8091}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{e91382ee-dfe3-48cb-95bf-2f1df4ee4b2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Common">
+      <UniqueIdentifier>{9d97905b-903a-48bc-bf16-22e8df6399fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\RenderProcess\PassRela">
+      <UniqueIdentifier>{12ad6f3e-4ecd-48db-8024-3427062b5a41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\RenderProcess\PassRela\Base">
+      <UniqueIdentifier>{8f28642d-5272-4541-b606-2b8c8634f716}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\RenderProcess\GraphRela">
+      <UniqueIdentifier>{8e317a0c-1806-4be5-b4f4-b6b86139ae5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Other">
+      <UniqueIdentifier>{ddfb8e2a-fe08-4262-a8a1-7e898be8cd33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry\DrawTest">
+      <UniqueIdentifier>{aeb1f9da-7ddf-4a86-802c-a87791d21686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry\DrawTest\Common">
+      <UniqueIdentifier>{1b92bb17-efed-4fa9-a703-284809a221cb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Window.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CmnHead.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTimer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CmnFunc.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="dxerr.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DxgiInfoManager.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsThrowMacros.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionBase.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Bindable.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicResource.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShader.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayout.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Topology.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Rasterizer.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencil.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Blender.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawable.h">
+      <Filter>Frame\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="FirstCase.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureCase.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampler.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Frame\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformCbuf.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryGenerator.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="MathHelper.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryCase.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="SeveralGeometryCase.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="BindsDic.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="CloneCase.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="BindableCommon.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Stencil.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferResource.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderQueuePass.h">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="BindingPass.h">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Pass.h">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Sink.h">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Source.h">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryInLightCase.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryCaseWithTech.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="TechChannels.h">
+      <Filter>Frame\RenderProcess\GraphRela</Filter>
+    </ClInclude>
+    <ClInclude Include="TestRenderGraph.h">
+      <Filter>Frame\RenderProcess\GraphRela</Filter>
+    </ClInclude>
+    <ClInclude Include="Job.h">
+      <Filter>Frame\RenderProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderGraph.h">
+      <Filter>Frame\RenderProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="Step.h">
+      <Filter>Frame\RenderProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="Technique.h">
+      <Filter>Frame\RenderProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="TestPass.h">
+      <Filter>Frame\RenderProcess\PassRela</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Frame\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadObjCase.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadObjWithModel.h">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClInclude>
+    <ClInclude Include="LambertianPass.h">
+      <Filter>Frame\RenderProcess\PassRela</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferEx.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicConstant.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutDic.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeTexture.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLight.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionLight.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="LightCase.h">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CaseBase.h">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyboxCase.h">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneCase.h">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Cuboid.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Frame\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>Frame\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ConvertFunc.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyboxTransformCbuf.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="OutlineMaskGenerationPass.h">
+      <Filter>Frame\RenderProcess\PassRela</Filter>
+    </ClInclude>
+    <ClInclude Include="NullPixelShader.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="OutlineDrawingPass.h">
+      <Filter>Frame\RenderProcess\PassRela</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferClearPass.h">
+      <Filter>Frame\RenderProcess\PassRela</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyboxPass.h">
+      <Filter>Frame\RenderProcess\PassRela</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowCameraCBuf.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowSampler.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMappingPass.h">
+      <Filter>Frame\RenderProcess\PassRela</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowRasterizer.h">
+      <Filter>Frame\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowRenderGraph.h">
+      <Filter>Frame\RenderProcess\GraphRela</Filter>
+    </ClInclude>
+    <ClInclude Include="Projection.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Waves.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveCase.h">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dApp.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WinMain.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="CmnFunc.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="dxerr.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GameTimer.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DxgiInfoManager.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="ExceptionBase.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicResource.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexShader.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelShader.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayout.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewport.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Topology.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Rasterizer.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencil.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Blender.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawable.cpp">
+      <Filter>Frame\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="FirstCase.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Surface.cpp">
+      <Filter>Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureCase.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampler.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Frame\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformCbuf.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryGenerator.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="MathHelper.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryCase.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="SeveralGeometryCase.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="CloneCase.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Stencil.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderQueuePass.cpp">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="BindingPass.cpp">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Pass.cpp">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Sink.cpp">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>Frame\RenderProcess\PassRela\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryInLightCase.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryCaseWithTech.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="TestRenderGraph.cpp">
+      <Filter>Frame\RenderProcess\GraphRela</Filter>
+    </ClCompile>
+    <ClCompile Include="Job.cpp">
+      <Filter>Frame\RenderProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderGraph.cpp">
+      <Filter>Frame\RenderProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="Step.cpp">
+      <Filter>Frame\RenderProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="Technique.cpp">
+      <Filter>Frame\RenderProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Frame\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadObjCase.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadObjWithModel.cpp">
+      <Filter>Geometry\DrawTest</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicConstant.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="LayoutDic.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeTexture.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLight.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionLight.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="LightCase.cpp">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxCase.cpp">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaneCase.cpp">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Cuboid.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Frame\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Frame\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="ConvertFunc.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyboxTransformCbuf.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="NullPixelShader.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowCameraCBuf.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowSampler.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowRasterizer.cpp">
+      <Filter>Frame\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowRenderGraph.cpp">
+      <Filter>Frame\RenderProcess\GraphRela</Filter>
+    </ClCompile>
+    <ClCompile Include="Projection.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Waves.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveCase.cpp">
+      <Filter>Geometry\DrawTest\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="d3dApp.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DXGetErrorDescription.inl">
+      <Filter>配置文件</Filter>
+    </None>
+    <None Include="DXGetErrorString.inl">
+      <Filter>配置文件</Filter>
+    </None>
+    <None Include="DXTrace.inl">
+      <Filter>配置文件</Filter>
+    </None>
+    <None Include="ShaderOps.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+    <None Include="LightVectorData.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+    <None Include="VSShadow.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+    <None Include="Transform.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+    <None Include="Light.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+    <None Include="_PShadow_Static.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="TextureVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="TexturePS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="GeometryVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="GeometryPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="SolidVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="SolidPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDif_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDif_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDifNrm_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDifNrm_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDifSpc_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDifSpc_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDifSpcNrm_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDifSpcNrm_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDifSpcNrmMsk_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongDifSpcNrmMsk_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Phong_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Phong_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Skybox_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Skybox_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowTest_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowTest_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shadow_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowTestInWorld_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="ShadowTestInWorld_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shadow_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Wave_VS.hlsl">
+      <Filter>Shader\Other</Filter>
+    </FxCompile>
+    <FxCompile Include="Wave_PS.hlsl">
+      <Filter>Shader\Other</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>

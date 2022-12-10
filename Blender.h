@@ -19,6 +19,8 @@ namespace Bind
 		void Bind(Graphic & gfx) override;
 		void SetFactor(float factor);
 		float GetFactor();
+		static shared_ptr<Blender> Resolve(Graphic & gfx, bool blending, float factor = BLENDFACROR_DEFAULT);
+		static string GenerateUID(bool blending, float factor);
 	protected:
 		bool m_blending;
 		Microsoft::WRL::ComPtr<ID3D11BlendState> m_blenderStat;

@@ -4,6 +4,9 @@
 #pragma once
 
 #include "GraphicResource.h"
+#include <memory>
+
+class Drawable;
 
 namespace Bind
 {
@@ -11,6 +14,13 @@ namespace Bind
 	{
 	public:
 		virtual void Bind(Graphic& gfx) = 0;
+		virtual void InitializeParentRef(Drawable &) {}
+	};
+
+	class CloneBindable : public Bindable
+	{
+	public:
+		virtual unique_ptr<CloneBindable> Clone() = 0;
 	};
 }
 

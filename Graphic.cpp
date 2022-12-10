@@ -3,11 +3,10 @@
 #include "d3dcompiler.h"
 #include <sstream>
 #include "GraphicsThrowMacros.h"
-
+#include "math.h"
+#include "RenderTarget.h"
+#include "DepthStencil.h"
 #include "Viewport.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "ConstantBuffer.h"
 
 namespace wrl = Microsoft::WRL;
 
@@ -20,12 +19,27 @@ Graphic::Graphic(HWND hWnd,int nWndWidth, int nWndHeight)
 	mWndWidth = nWndWidth;
 	mWndHeight = nWndHeight;
 
-	mEnable4xMsaa = true;		
+	mEnable4xMsaa = false;		
 	m4xMsaaQuality = 0;
 
 	//mDepthStencilBuffer = nullptr;
 	//mDepthStencilView = nullptr;
 	//ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
+
+	//应用程序调用com库函数之前必须初始化com库，为了使用DirectXTex
+#if (_WIN32_WINNT >= 0x0A00 /*_WIN32_WINNT_WIN10*/)
+	Microsoft::WRL::Wrappers::RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
+	if (FAILED(initialize))
+		// error
+#else
+	//mCoInitialhr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
+	mCoInitialHr = CoInitialize(nullptr);
+	if (FAILED(mCoInitialHr))
+	{
+		OutPutError("%s:%d\nFailed to CoInitialize\n *Error string:\n%s",
+			__FILE__, __LINE__, TranslateErrorCode(mCoInitialHr).c_str());
+	}
+#endif
 }
 
 Graphic::~Graphic()
@@ -33,7 +47,7 @@ Graphic::~Graphic()
 	//ReleaseCOM(mDepthStencilView);
 	//ReleaseCOM(mDepthStencilBuffer);
 
-	// Restore all default settings.
+	//恢复所有默认设定
 	if (mDeviceContext.Get() != nullptr)
 		mDeviceContext->ClearState();
 
@@ -70,10 +84,7 @@ bool Graphic::Init()
 		MessageBox(0, "Direct3D Feature Level 11 unsupported.", 0, 0);
 		return false;
 	}
-
-	// Check 4X MSAA quality support for our back buffer format.
-	// All Direct3D 11 capable devices support 4X MSAA for all render 
-	// target formats, so we only need to check quality support.
+	//检测是否支持抗锯齿
 	GFX_THROW_INFO(mDevice->CheckMultisampleQualityLevels(
 		DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality));
 
@@ -85,13 +96,11 @@ bool Graphic::Init()
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	// Use 4X MSAA? 
 	if (mEnable4xMsaa)
 	{
 		sd.SampleDesc.Count = 4;
 		sd.SampleDesc.Quality = m4xMsaaQuality - 1;
 	}
-	// No MSAA
 	else
 	{
 		sd.SampleDesc.Count = 1;
@@ -118,253 +127,39 @@ bool Graphic::Init()
 	/*D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags,
 		nullptr, 0, D3D11_SDK_VERSION, &sd, &mSwapChain, &mDevice, nullptr, &mDeviceContext);*/
 
-	OnResize();
+	wrl::ComPtr<ID3D11Texture2D> backBuffer;
+	GFX_THROW_INFO(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backBuffer));								//装备用ID3D11Texture2D接口来操作后向缓冲区backbuffer
+	mRenderTarget = shared_ptr<Bind::RenderTarget>(new Bind::OutputOnlyRenderTarget(*this, backBuffer.Get(), mEnable4xMsaa));//创建一个渲染目标视图
+	mDepthStencil = make_shared<Bind::OutputOnlyDepthStencil>(*this, mWndWidth, mWndHeight, mEnable4xMsaa, m4xMsaaQuality);
+	//mRenderTarget->BindAsBuffer(*this, mDepthStencil.get());														//绑定一个或更多渲染目标和深度模板缓冲区到管线的输出合并器阶段 
+
+	//设置视口
+	Bind::Viewport mScreenViewport(*this);
+	mScreenViewport.Bind(*this);
 
 	return true;
 }
 
 void Graphic::OnResize()
 {
-	// Release the old views, as they hold references to the buffers we
-	// will be destroying.  Also release the old depth/stencil buffer.
-	//ReleaseCOM(mDepthStencilView);
-	//ReleaseCOM(mDepthStencilBuffer);
-	//ReleaseCOM(mRenderTarget);
-	mRenderTarget.~ComPtr();
-
-	HRESULT hr;
-	// Resize the swap chain and recreate the render target view.
-	GFX_THROW_INFO(mSwapChain->ResizeBuffers(1, mWndWidth, mWndHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));				//改变交换链缓冲区的设置
-	wrl::ComPtr<ID3D11Texture2D> backBuffer;
-	GFX_THROW_INFO(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backBuffer));								//装备用ID3D11Texture2D接口来操作后向缓冲区backbuffer
-	//GFX_THROW_INFO(mDevice->CreateRenderTargetView(backBuffer.Get(), 0, &mRenderTarget));
-	GFX_THROW_INFO(mDevice->CreateRenderTargetView(backBuffer.Get(), 0, &mRenderTarget));//为读入的资源数据创建一个渲染目标视图
-
-	//设置渲染目标
-	mDeviceContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), 0);
-	
-	//设置视口
-	/*D3D11_VIEWPORT mScreenViewport;
-	mScreenViewport.TopLeftX = 0;
-	mScreenViewport.TopLeftY = 0;
-	mScreenViewport.Width = static_cast<float>(mWndWidth);
-	mScreenViewport.Height = static_cast<float>(mWndHeight);
-	mScreenViewport.MinDepth = 0.0f;
-	mScreenViewport.MaxDepth = 1.0f;
-	mDeviceContext->RSSetViewports(1, &mScreenViewport);*/
-	Bind::Viewport mScreenViewport{ *this };
-	mScreenViewport.Bind(*this);
 }
 
-void Graphic::UpdateScene(float dt)
+void Graphic::BeginFrame()
 {
-	float value = sin(dt)*0.5f + 0.5f;
-	//float ClearColor[4] = { 0.5f, 0.1f, 0.2f, 1.0f }; //red,green,blue,alpha
-	float ClearColor[4] = { value, value, 0.2f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRenderTarget.Get(), ClearColor);
-	DrawTriangle(dt);
+	/*float value = sin(dt)*0.5f + 0.5f;
+	float ClearColor[4] = { value, value, 0.2f,1.0f };
+	mDeviceContext->ClearRenderTargetView(mRenderTarget.Get(), ClearColor);*/
+	mRenderTarget->Clear(*this);
+	mDepthStencil->Clear(*this);
+	//清除shader input资源，防止上一帧的PSSetShaderResources输入和下一帧的OMSetRenderTargets输出同时绑定，引发报错
+	ID3D11ShaderResourceView * pNullTex = nullptr;
+	mDeviceContext->PSSetShaderResources(0, 1, &pNullTex);
+	mDeviceContext->PSSetShaderResources(3, 1, &pNullTex);
 }
 
-void Graphic::DrawScene()
+void Graphic::EndFrame()
 {
 	GFX_THROW_INFO_ONLY(mSwapChain->Present(1, 0));
-}
-
-void Graphic::DrawTriangle(float angle)
-{
-	// for checking results of d3d functions
-	//HRESULT hr;
-	//struct Vertex
-	//{
-	//	typedef struct
-	//	{
-	//		float x;
-	//		float y;
-	//	}Pos;
-	//	typedef struct
-	//	{
-	//		unsigned char r;
-	//		unsigned char g;
-	//		unsigned char b;
-	//		unsigned char a;
-	//	}Color;
-	//	Pos pos;
-	//	Color color;
-	//};
-
-	//Vertex vertexArr[] = {
-	//	
-	//	/*{0.0f,0.5f,255,0,0,255},
-	//	{0.5f,-0.5f,0,255,0,255},
-	//	{-0.5f,-0.5f,0,0,255,255},
-
-	//	{0.0f,0.5f,255,0,0,255},
-	//	{ 0.5f,0.0f,0,255,0,255 },
-	//	{ 0.5f,-0.5f,0,0,255,255 },
-
-	//	{-0.5f,-0.5f,0,0,255,255},
-	//	{ 0.5f,-0.5f,0,255,0,255 },
-	//	{ 0.0f,-0.75f,0,255,0,255 },
-
-	//	{ 0.0f,0.5f,255,0,0,255 },
-	//	{ -0.5f,-0.5f,0,0,255,255 },
-	//	{ -0.5f,0.0f,0,0,255,255 },*/
-
-	//	{ 0.0f,1.0f,255,0,0,255 },
-	//	{ 0.5f,-0.5f,0,255,0,255 },
-	//	{ -0.5f,-0.5f,0,0,255,255 },
-	//	{ 0.5f,0.0f,0,255,0,255 },
-	//	{ 0.0f,-0.75f,0,255,0,255 },
-	//	{ -0.5f,0.0f,0,0,255,255 },
-	//};
-
-	////创建顶点缓存
-	//wrl::ComPtr<ID3D11Buffer> vertexBuff;
-	//D3D11_BUFFER_DESC vertexBufDesc;
-	//vertexBufDesc.ByteWidth = sizeof(vertexArr);
-	//vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;;
-	//vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	//vertexBufDesc.CPUAccessFlags = 0;
-	//vertexBufDesc.MiscFlags = 0;
-	//vertexBufDesc.StructureByteStride = sizeof(Vertex);
-	//D3D11_SUBRESOURCE_DATA vertexInitData;
-	//vertexInitData.pSysMem = vertexArr;
-	//GFX_THROW_INFO(mDevice->CreateBuffer(&vertexBufDesc, &vertexInitData, &vertexBuff));
-
-	//SHORT indexArr[] =
-	//{
-	//	0,1,2,
-	//	1,0,3,
-	//	1,4,2,
-	//	0,2,5,
-	//};
-	////创建索引缓存
-	//wrl::ComPtr<ID3D11Buffer> indexBuff;
-	//D3D11_BUFFER_DESC indexBufDesc;
-	//indexBufDesc.ByteWidth = sizeof(indexArr);
-	//indexBufDesc.Usage = D3D11_USAGE_IMMUTABLE;;
-	//indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	//indexBufDesc.CPUAccessFlags = 0;
-	//indexBufDesc.MiscFlags = 0;
-	//indexBufDesc.StructureByteStride = 0;
-	//D3D11_SUBRESOURCE_DATA indexInitData;
-	//indexInitData.pSysMem = indexArr;
-	//GFX_THROW_INFO(mDevice->CreateBuffer(&indexBufDesc, &indexInitData, &indexBuff));
-	////设置顶点缓存
-	//UINT stride = sizeof(Vertex);
-	//UINT offset = 0;
-	//mDeviceContext->IASetVertexBuffers(0, 1, vertexBuff.GetAddressOf(), &stride, &offset);
-	////设置索引缓存
-	//mDeviceContext->IASetIndexBuffer(indexBuff.Get(), DXGI_FORMAT_R16_UINT, 0);
-
-	////设置常量缓存
-	//float constBuffMatrix[4][4] = {
-	//	cos(angle)*0.5f,		sin(angle),		0,		0,
-	//	-sin(angle)*0.5f,	cos(angle),		0,		0,
-	//	0,				0,				1,		0,
-	//	0,				0,				0,		1
-	//};
-	//wrl::ComPtr<ID3D11Buffer> constBuffer;
-	//D3D11_BUFFER_DESC constBufDesc;
-	//constBufDesc.ByteWidth = sizeof(constBuffMatrix);
-	//constBufDesc.Usage = D3D11_USAGE_DYNAMIC;;
-	//constBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	//constBufDesc.MiscFlags = 0;
-	//constBufDesc.StructureByteStride = 0;
-	//D3D11_SUBRESOURCE_DATA constInitData;
-	//constInitData.pSysMem = constBuffMatrix;
-	//GFX_THROW_INFO(mDevice->CreateBuffer(&constBufDesc, &constInitData, &constBuffer));
-	//mDeviceContext->VSSetConstantBuffers(0, 1, constBuffer.GetAddressOf());
-
-	////读取顶点着色器
-	//wrl::ComPtr<ID3DBlob> vsBlob;
-	//GFX_THROW_INFO(D3DReadFileToBlob(L"VertexShader.cso", &vsBlob));
-	////创建并设置顶点着色器
-	//wrl::ComPtr<ID3D11VertexShader> vertexShader;
-	//GFX_THROW_INFO(mDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), 0, &vertexShader));
-	//mDeviceContext->VSSetShader(vertexShader.Get(), 0, 0);
-
-	////读取像素着色器
-	//wrl::ComPtr<ID3DBlob> psBlob;
-	//GFX_THROW_INFO(D3DReadFileToBlob(L"PixelShader.cso", &psBlob));
-	////创建并设置像素着色器
-	//wrl::ComPtr<ID3D11PixelShader>  pixelShader;
-	//mDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), 0, &pixelShader);
-	//mDeviceContext->PSSetShader(pixelShader.Get(), 0, 0);
-
-	////设置inputlayout
-	//wrl::ComPtr<ID3D11InputLayout> inputLayout;
-	//D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
-	//{
-	//	{ "Position",0,DXGI_FORMAT_R32G32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA ,0 },
-	//	{ "Color",0,DXGI_FORMAT_R8G8B8A8_UNORM,0,8,D3D11_INPUT_PER_VERTEX_DATA ,0 },
-	//};
-	//mDevice->CreateInputLayout(vertexDesc, size(vertexDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout);
-	//mDeviceContext->IASetInputLayout(inputLayout.Get());
-
-	////设置几何图元形状
-	//mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-
-	//////////////////////////////////////////////
-	struct Vertex
-	{
-		DirectX::XMFLOAT2 pos;
-		BGRAColor color;
-	};
-
-	Vertex vertexArr[] = {
-		{ {0.0f,1.0f},255,0,0,255 },
-		{ {0.5f,-0.5f},0,255,0,255 },
-		{ {-0.5f,-0.5f},0,0,255,255 },
-		{ {0.5f,0.0f},0,255,0,255 },
-		{ {0.0f,-0.75f},0,255,0,255 },
-		{ {-0.5f,0.0f},0,0,255,255 },
-	};
-	char* buffer = new char(size(vertexArr));
-	memmove(buffer, vertexArr, size(vertexArr));
-	//设置顶点缓存
-	VertexRela::VertexLayout vtLayout;
-	vtLayout = vtLayout.Append(VertexRela::VertexLayout::ElementType::Position2D);
-	vtLayout = vtLayout.Append(VertexRela::VertexLayout::ElementType::BGRAColor);
-	//Bind::VertexBuffer vertexBuff{*this,}
-	VertexRela::VertexBuffer vtBuffer(vtLayout);
-	for (size_t i = 0; i < size(vertexArr); ++i)
-	{
-		/*auto vertex = vtBuffer[i];
-		vertex.SetAttributeByIndex(0, vertexArr[i].pos);
-		vertex.SetAttributeByIndex(1, vertexArr[i].color);*/
-		vtBuffer.EmplaceBack(std::move(*buffer));
-	}
-	Bind::VertexBuffer vtBindBuffer(*this, vtBuffer);
-	vtBindBuffer.Bind(*this);
-
-	//设置索引缓存
-	SHORT indexArr[] =
-	{
-		0,1,2,
-		1,0,3,
-		1,4,2,
-		0,2,5,
-	};
-	vector<unsigned short> vecIdArr;
-	vecIdArr.reserve(size(indexArr));
-	vecIdArr.assign(&indexArr[0], &indexArr[size(indexArr) - 1]);
-	Bind::IndexBuffer idBuffer(*this, vecIdArr);
-
-	//设置常量缓存
-	float constBuffMatrix[16] = {
-		cos(angle)*0.5f,		sin(angle),		0,		0,
-		-sin(angle)*0.5f,	cos(angle),		0,		0,
-		0,				0,				1,		0,
-		0,				0,				0,		1
-	};
-	DirectX::XMMATRIX matrix(constBuffMatrix);
-	Bind::VertexConstantBuffer<DirectX::XMMATRIX> vtConstantBuffer(*this, matrix);
-	//////////////////////////////////////////////
-
-	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(size(indexArr), 0u, 0u));
 }
 
 int Graphic::GetWidth()
@@ -375,6 +170,58 @@ int Graphic::GetWidth()
 int Graphic::GetHeight()
 {
 	return mWndHeight;
+}
+
+void Graphic::DrawIndex(UINT count)
+{
+	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(count, 0u, 0u));
+}
+
+void Graphic::SetCamera(DirectX::XMMATRIX & view)
+{
+	mCamera = view;
+}
+
+DirectX::XMMATRIX Graphic::GetCamera()
+{
+	return mCamera;
+}
+
+void Graphic::SetProjection(DirectX::FXMMATRIX & proj)
+{
+	mProj = proj;
+}
+
+DirectX::XMMATRIX Graphic::GetProjection()
+{
+	return mProj;
+}
+
+shared_ptr<Bind::RenderTarget> Graphic::GetRenderTarget()
+{
+	return mRenderTarget;
+}
+
+shared_ptr<Bind::DepthStencil> Graphic::GetDepthStencil()
+{
+	return mDepthStencil;
+}
+
+shared_ptr<Rgph::RenderGraph> Graphic::GetRenderGraph()
+{
+	if (!mRenderGraph)
+		OutPutError("%s:%d\nrenderGraph is null", __FILE__, __LINE__);
+	return mRenderGraph;
+}
+
+bool Graphic::Get4xMsaaStat()
+{
+	return mEnable4xMsaa;
+}
+
+UINT Graphic::GetMsaaQuality()
+{
+	return m4xMsaaQuality;
 }
 
 Graphic::HrException::HrException(int line, const char * file, HRESULT hr, vector<string> infoMsgs) 
@@ -441,7 +288,6 @@ std::string Graphic::HrException::GetErrorInfo() const
 Graphic::InfoException::InfoException(int line, const char * file, std::vector<std::string> infoMsgs) 
 	: ExceptionBase(line,file)
 {
-	// join all info messages with newlines into single string
 	for (const auto& m : infoMsgs)
 	{
 		info += m;

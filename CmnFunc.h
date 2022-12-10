@@ -18,4 +18,9 @@ string FormatString(vector<string> infoMsgs);
 
 wstring String2WString(const std::string& s);
 
+string TranslateErrorCode(HRESULT hr);
+
+void SplitString(const string & targetString, const string & splitChar, vector<string> & vecStr);
+
+
 #endif // !__COMMONFUNC_H__

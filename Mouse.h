@@ -13,11 +13,13 @@ class Mouse
 	{
 		int x, y;
 	};
+public:
 	class Event
 	{
 	public:
-		enum Type
+		enum class Type
 		{
+			Default,
 			LPress,
 			LRelease,
 			RPress,
@@ -87,13 +89,17 @@ public:
 	void RemoveBuffer();
 private:
 	static const int bufferSize = 16;
-	bool leftIsPressed;
-	bool rightIsPressed;
 	int x;
 	int y;
-	int totalWheelDelta;
 	std::queue<Event> eventBuffer;
 	std::queue<WheelDelta> wheelDeltaBuff;
+public:
+	bool leftIsPressed;
+	bool rightIsPressed;
+
+	int m_lastMousePosX;
+	int m_lastMousePosY;
+	int totalWheelDelta;
 };
 
 #endif // !__MOUSE_H__

@@ -18,6 +18,8 @@ public:
 	void Stop();  // Call when paused.
 	void Tick();  // Call every frame.
 
+	void TotalFrameIncrement();
+	float GetFixTime();
 private:
 	double mSecondsPerCount;
 	double mDeltaTime;
@@ -29,6 +31,9 @@ private:
 	__int64 mCurrTime;
 
 	bool mStopped;
+
+	float mFixTimePerFrame;
+	UINT mTotalFrame;
 };
 
 #endif // GAMETIMER_H

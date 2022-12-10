@@ -1,5 +1,6 @@
 #include "Blender.h"
 #include "GraphicsThrowMacros.h"
+#include "BindsDic.h"
 
 namespace Bind
 {
@@ -39,13 +40,23 @@ namespace Bind
 
 	void Blender::SetFactor(float factor)
 	{
-		if (factor > 0.0f)
+		if (factor >= 0.0f)
 			m_factors.fill(factor);
 	}
 
 	float Blender::GetFactor()
 	{
 		return m_factors.front();
+	}
+
+	shared_ptr<Blender> Blender::Resolve(Graphic & gfx, bool blending, float factor)
+	{
+		return BindsDic::Resolve<Blender>(gfx, blending, factor);
+	}
+
+	string Blender::GenerateUID(bool blending, float factor)
+	{
+		return typeid(Blender).name() + "#"s + (blending ? "b"s : "n"s) + "#f"s + std::to_string(factor);
 	}
 }
 

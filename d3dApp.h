@@ -16,6 +16,8 @@
 #include "windows.h"
 #include "Window.h"
 #include "GameTimer.h"
+#include "Camera.h"
+#include "ShadowRenderGraph.h"
 
 class D3DApp
 {
@@ -24,13 +26,19 @@ public:
 	virtual ~D3DApp();
 	
 	HINSTANCE Inst()const;
-	Window* GetWindow()const;
+	shared_ptr<Window> GetWindow()const;
 	int Run();
+	void CalculateFrameStats();
+	void HandleInput();
+	void DoFrame(float dt);
 public:
 	virtual bool InitWnd(HINSTANCE hInstance, int nWndWidth, int nWndHeight, string szWndCaption = "");
 protected:
-	Window*   mWindow;
 	GameTimer mTimer;
+	shared_ptr<Window> mWindow;
+	shared_ptr<Camera> mCamera;
+	shared_ptr<Rgph::ShadowRenderGraph> mRenderGraph;
+	DWORD mSave = false;
 };
 extern D3DApp* gd3dApp;
 #endif // D3DAPP_H
