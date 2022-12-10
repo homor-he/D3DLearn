@@ -6,6 +6,7 @@
 #include "CmnHead.h"
 #include "Graphic.h"
 #include "Mouse.h"
+#include "Keyboard.h"
 
 class Window
 {
@@ -19,7 +20,6 @@ public:
 	HWND      Wnd()const;
 	float     AspectRatio()const;    //宽高比
 	Graphic*  GetGraphic()const;
-	void CalculateFrameStats();
 
 	virtual void OnResize();
 public:
@@ -34,13 +34,16 @@ public:
 	bool      mMinimized;
 	bool      mMaximized;
 	bool      mResizing;
+
+	Mouse     mMouse;
+	Keyboard  mKeyboard;
 private:
 	HINSTANCE mInst;				//该窗口类的窗口过程所在的模块实例的句柄
 	HWND      mWnd;
 	string	  mWndCaption;
 
 	Graphic*  mGraphic;
-	Mouse     mMouse;
+	
 };
 
 

@@ -12,9 +12,20 @@ namespace Bind
 	{
 	public:
 		VertexBuffer(Graphic & gfx, VertexRela::VertexBuffer & vBuf);
+		VertexBuffer(Graphic & gfx, string tag, VertexRela::VertexBuffer & vBuf, bool cpuAccess = false);
 		void Bind(Graphic& gfx) override;
 		VertexRela::VertexLayout & GetLayout();
+		static shared_ptr<VertexBuffer> Resolve(Graphic & gfx, string &tag, VertexRela::VertexBuffer & vBuf, bool cpuAccess = false);
+		template<typename ... Ignore>
+		static string GenerateUID(string & tag, Ignore && ... p)
+		{
+			return GenerateUID_(tag);
+		}
+		Microsoft::WRL::ComPtr<ID3D11Buffer> GetD3DVtxBuffer();
+	private:
+		static string GenerateUID_(string & tag);
 	protected:
+		string m_tag;
 		UINT m_stride;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 		VertexRela::VertexLayout m_layout;

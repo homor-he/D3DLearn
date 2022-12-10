@@ -7,6 +7,7 @@
 #include "CmnFunc.h"
 #include <type_traits>
 #include <utility>
+#include <assimp/scene.h>
 
 struct BGRAColor
 {
@@ -15,6 +16,8 @@ struct BGRAColor
 	unsigned char g;
 	unsigned char b;
 };
+
+#define DVTX_ELEMENT_AI_EXTRACTOR(member) static SysType Extract( const aiMesh& mesh,size_t i ) {return *reinterpret_cast<const SysType*>(&mesh.member[i]);}
 
 namespace VertexRela
 {
@@ -42,7 +45,11 @@ namespace VertexRela
 		{
 			typedef DirectX::XMFLOAT2 SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
+			//用于生成D3D11_INPUT_ELEMENT_DESC
 			static constexpr const char*  s_semantic  = "Position";
+			//用于生成key，从而管理相关列表
+			static constexpr const char* code = "P2";
+			DVTX_ELEMENT_AI_EXTRACTOR(mVertices);
 		};
 
 		template<> struct Map<Position3D>
@@ -50,6 +57,8 @@ namespace VertexRela
 			typedef DirectX::XMFLOAT3 SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char*  s_semantic = "Position";
+			static constexpr const char* code = "P3";
+			DVTX_ELEMENT_AI_EXTRACTOR(mVertices);
 		};
 
 		template<> struct Map<Texture2D>
@@ -57,6 +66,8 @@ namespace VertexRela
 			typedef DirectX::XMFLOAT2 SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char*  s_semantic = "Texcoord";
+			static constexpr const char* code = "T2";
+			DVTX_ELEMENT_AI_EXTRACTOR(mTextureCoords[0]);
 		};
 
 		template<> struct Map<Normal>
@@ -64,6 +75,8 @@ namespace VertexRela
 			typedef DirectX::XMFLOAT3 SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char*  s_semantic = "Normal";
+			static constexpr const char* code = "N";
+			DVTX_ELEMENT_AI_EXTRACTOR(mNormals);
 		};
 
 		template<> struct Map<Tangent>
@@ -71,6 +84,8 @@ namespace VertexRela
 			typedef DirectX::XMFLOAT3 SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char*  s_semantic = "Tangent";
+			static constexpr const char* code = "Nt";
+			DVTX_ELEMENT_AI_EXTRACTOR(mTangents);
 		};
 
 		template<> struct Map<Bitangent>
@@ -78,6 +93,8 @@ namespace VertexRela
 			typedef DirectX::XMFLOAT3 SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char*  s_semantic = "Bitangent";
+			static constexpr const char* code = "Nb";
+			DVTX_ELEMENT_AI_EXTRACTOR(mBitangents);
 		};
 
 		template<> struct Map<Float3Color>
@@ -85,6 +102,8 @@ namespace VertexRela
 			typedef DirectX::XMFLOAT3 SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char*  s_semantic = "Color";
+			static constexpr const char* code = "C3";
+			DVTX_ELEMENT_AI_EXTRACTOR(mColors[0]);
 		};
 
 		template<> struct Map<Float4Color>
@@ -92,6 +111,8 @@ namespace VertexRela
 			typedef DirectX::XMFLOAT4 SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			static constexpr const char*  s_semantic = "Color";
+			static constexpr const char* code = "C4";
+			DVTX_ELEMENT_AI_EXTRACTOR(mColors[0]);
 		};
 
 		template<> struct Map<BGRAColor>
@@ -99,6 +120,8 @@ namespace VertexRela
 			typedef ::BGRAColor SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 			static constexpr const char*  s_semantic = "Color";
+			static constexpr const char* code = "C8";
+			DVTX_ELEMENT_AI_EXTRACTOR(mColors[0]);
 		};
 
 		template<> struct Map<Count>
@@ -106,6 +129,8 @@ namespace VertexRela
 			typedef long double SysType;
 			static const DXGI_FORMAT s_dxgiFormat = DXGI_FORMAT_UNKNOWN;
 			static constexpr const char*  s_semantic = "!INVALID!";
+			static constexpr const char* code = "!INV!";
+			DVTX_ELEMENT_AI_EXTRACTOR(mFaces);
 		};
 
 		//模板函数中套了模板类
@@ -149,12 +174,25 @@ namespace VertexRela
 			ElementType GetType() const;
 			static size_t SizeOf(ElementType type);
 			D3D11_INPUT_ELEMENT_DESC GetDesc();
+			const char* GetCode();
 		private:
 			ElementType m_type;
 			size_t m_offset;
 		};
 
 	public:
+		template<ElementType type>
+		Element & Resolve()
+		{
+			for (auto & e : m_elements)
+			{
+				if (e.GetType() == type)
+					return e;
+			}
+			OutPutError("%s:%d\nCan't resolve element type", __FILE__, __LINE__);
+			return m_elements.front();
+		}
+
 		size_t GetSize();
 		size_t SizeBytes();
 		VertexLayout & Append(ElementType type);
@@ -162,6 +200,7 @@ namespace VertexRela
 		size_t GetElementCnt();
 		vector<D3D11_INPUT_ELEMENT_DESC> GetLayoutDesc();
 		bool Has(ElementType type) const;
+		string GetCode();
 	private:
 		std::vector<Element> m_elements;
 	};
@@ -183,6 +222,13 @@ namespace VertexRela
 		};
 
 	public:
+		template<VertexLayout::ElementType type>
+		auto & Attr()
+		{
+			auto attr = m_pData + m_layout.Resolve<type>().GetOffset();
+			return *reinterpret_cast<VertexLayout::Map<type>::SysType *>(attr);
+		}
+
 		template<typename T>
 		void SetAttributeByIndex(size_t i, T && val)
 		{
@@ -201,8 +247,10 @@ namespace VertexRela
 			if (is_assignable<Dest, SrcType>::value)
 			{
 				//*reinterpret_cast<Dest*>(pAttribute) = val;
-				*reinterpret_cast<Dest*>(pAttribute) = val;
-				//memcpy_s(pAttribute, sizeof(SrcType), (char*)&val, sizeof(SrcType));
+				//Dest* value = (Dest*)pAttribute;
+				memcpy_s(pAttribute, sizeof(SrcType), (char*)&val, sizeof(SrcType));
+				//value = (Dest*)pAttribute;
+				//Sleep(100);
 			}
 			else
 			{
@@ -226,6 +274,7 @@ namespace VertexRela
 	{
 	public:
 		VertexBuffer(VertexLayout layout, size_t size = 0U);
+		VertexBuffer(VertexLayout layout, aiMesh & mesh);
 		const char* GetData();
 		VertexLayout& GetLayout();
 		size_t GetSize();

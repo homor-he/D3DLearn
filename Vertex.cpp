@@ -51,14 +51,28 @@ namespace VertexRela
 		{
 			return
 			{ VertexLayout::Map<type>::s_semantic, 0,  VertexLayout::Map<type>::s_dxgiFormat,
-			0, offset,D3D11_INPUT_PER_VERTEX_DATA,0 };
-			
+			0, (UINT)offset,D3D11_INPUT_PER_VERTEX_DATA,0 };
 		}
 	};
 
 	D3D11_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc()
 	{
 		return Bridge<DescGenerate>(m_type, m_offset);
+	}
+
+
+	template<VertexLayout::ElementType type>
+	struct CodeFilter
+	{
+		static const char* Exec()
+		{
+			return VertexLayout::Map<type>::code;
+		}
+	};
+
+	const char* VertexLayout::Element::GetCode()
+	{
+		return Bridge<CodeFilter>(m_type);
 	}
 
 	size_t VertexLayout::GetSize()
@@ -104,6 +118,7 @@ namespace VertexRela
 		}
 		return sDesc;
 	}
+
 	bool VertexLayout::Has(ElementType type) const 
 	{
 		for (auto & element : m_elements)
@@ -115,6 +130,17 @@ namespace VertexRela
 		}
 		return false;
 	}
+
+	string VertexLayout::GetCode()
+	{
+		string code;
+		for (auto & e : m_elements)
+		{
+			code += e.GetCode();
+		}
+		return code;
+	}
+
 #pragma endregion
 
 
@@ -131,6 +157,31 @@ namespace VertexRela
 		m_layout(move(layout))
 	{
 		SetBufferSize(size);
+	}
+
+	template<VertexLayout::ElementType type>
+	struct AttributeAiMeshFill
+	{
+		template<typename ... Params>
+		static auto Exec(VertexBuffer * pBuf, aiMesh & mesh)
+		{
+			size_t vertexSize = mesh.mNumVertices;
+			for (size_t i = 0; i < vertexSize; ++i)
+			{
+				(*pBuf)[i].Attr<type>() = VertexLayout::Map<type>::Extract(mesh, i);
+			}
+		}
+	};
+
+	VertexBuffer::VertexBuffer(VertexLayout layout, aiMesh & mesh):
+		m_layout(move(layout))
+	{
+		SetBufferSize(mesh.mNumVertices);
+		size_t elementSize = m_layout.GetElementCnt();
+		for (size_t i = 0; i < elementSize; ++i)
+		{
+			VertexLayout::Bridge<AttributeAiMeshFill>(m_layout.FindElementByIndex(i).GetType(), this, mesh);
+		}
 	}
 
 	const char * VertexBuffer::GetData()

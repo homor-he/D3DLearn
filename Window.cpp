@@ -94,36 +94,6 @@ Graphic * Window::GetGraphic() const
 	return mGraphic;
 }
 
-void Window::CalculateFrameStats()
-{
-	// Code computes the average frames per second, and also the 
-	// average time it takes to render one frame.  These stats 
-	// are appended to the window caption bar.
-
-	static int frameCnt = 0;
-	static float timeElapsed = 0.0f;
-
-	frameCnt++;
-
-	// Compute averages over one second period.
-	//if( (mTimer.TotalTime() - timeElapsed) >= 1.0f )
-	//{
-	//	float fps = (float)frameCnt; // fps = frameCnt / 1
-	//	float mspf = 1000.0f / fps;
-
-	//	std::wostringstream outs;   
-	//	outs.precision(6);
-	//	outs << mMainWndCaption << L"    "
-	//		 << L"FPS: " << fps << L"    " 
-	//		 << L"Frame Time: " << mspf << L" (ms)";
-	//	SetWindowText(mhMainWnd, outs.str().c_str());
-	//	
-	//	// Reset for next average.
-	//	frameCnt = 0;
-	//	timeElapsed += 1.0f;
-	//}
-}
-
 void Window::OnResize()
 {
 	mGraphic->OnResize();
@@ -156,9 +126,6 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
-		// WM_ACTIVATE is sent when the window is activated or deactivated.  
-		// We pause the game when the window is deactivated and unpause it 
-		// when it becomes active.  
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
@@ -172,9 +139,7 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		return 0;
 
-		// WM_SIZE is sent when the user resizes the window.  
 	case WM_SIZE:
-		// Save the new client area dimensions.
 		mWndWidth = LOWORD(lParam);
 		mWndHeight = HIWORD(lParam);
 		if (GraphicResource::GetDevice(*mGraphic))
@@ -194,16 +159,12 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			else if (wParam == SIZE_RESTORED)
 			{
-
-				// Restoring from minimized state?
 				if (mMinimized)
 				{
 					mAppPaused = false;
 					mMinimized = false;
 					OnResize();
 				}
-
-				// Restoring from maximized state?
 				else if (mMaximized)
 				{
 					mAppPaused = false;
@@ -246,7 +207,6 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 		/************* BAR MESSAGES ****************/
 
-		// WM_DESTROY is sent when the window is being destroyed.
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
@@ -254,7 +214,6 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// The WM_MENUCHAR message is sent when a menu is active and the user presses 
 		// a key that does not correspond to any mnemonic or accelerator key. 
 	case WM_MENUCHAR:
-		// Don't beep when we alt-enter.
 		return MAKELRESULT(0, MNC_CLOSE);
 
 		// Catch this message so to prevent the window from becoming too small.
@@ -282,12 +241,36 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		mMouse.OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		//WriteLog("%s-%d, ÆÁÄ»×ø±ê(%d,%d)",__FILE__,__LINE__, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
+		TRACKMOUSEEVENT trackEvent;
+		trackEvent.cbSize = sizeof(trackEvent);
+		trackEvent.dwFlags = TME_LEAVE;
+		trackEvent.dwHoverTime = HOVER_DEFAULT;
+		trackEvent.hwndTrack = hwnd;
+		TrackMouseEvent(&trackEvent);
 		return 0;
 	}
-	case WM_MOUSEHWHEEL:
+	case WM_MOUSEWHEEL:
 		mMouse.OnWheelDelta(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), GET_WHEEL_DELTA_WPARAM(wParam));
 		return 0;
+	case WM_MOUSELEAVE:
+		mMouse.OnMouseLeave();
+		return 0;
 		/************* MOUSE MESSAGES ****************/
+
+		/************* KEYBOARD MESSAGES ****************/
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+		mKeyboard.OnKeyPressed(static_cast<char>(wParam));
+		return 0;
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		mKeyboard.OnKeyReleased(static_cast<char>(wParam));
+		return 0;
+	case WM_CHAR:
+		mKeyboard.OnChar(static_cast<char>(wParam));
+		return 0;
+		/************* KEYBOARD MESSAGES ****************/
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
