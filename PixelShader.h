@@ -10,7 +10,9 @@ namespace Bind
 	class PixelShader : public Bindable
 	{
 	public:
-		PixelShader(Graphic & gfx, string & fileName);
+		PixelShader(Graphic & gfx, const string & fileName);
+		static shared_ptr<PixelShader> Resolve(Graphic & gfx, const string & path);
+		static string GenerateUID(const string & fileName);
 		void Bind(Graphic & gfx) override;
 	protected:
 		string m_path;
